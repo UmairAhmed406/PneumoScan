@@ -1,0 +1,159 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Model files (large files - will use Git LFS or Hugging Face)
+*.h5
+*.keras
+*.pb
+*.ckpt
+*.pth
+*.pt
+saved_model/
+checkpoints/
+
+# Data files (don't commit datasets)
+data/
+dataset/
+*.zip
+*.tar.gz
+*.csv
+*.xlsx
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# Flask
+instance/
+.webassets-cache
+uploads/
+temp/
+
+# Android
+*.iml
+.gradle
+/local.properties
+/.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+*.apk
+*.ap_
+*.aab
+
+# Gradle files
+.gradle/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# Android NDK
+obj/
+
+# Android Studio Navigation editor temp files
+.navigation/
+
+# Android Studio captures folder
+captures/
+
+# IntelliJ
+*.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/jarRepositories.xml
+.idea/modules.xml
+.idea/.name
+.idea/compiler.xml
+.idea/misc.xml
+
+# Keystore files
+*.jks
+*.keystore
+
+# Node (for future web development)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+.yarn-integrity
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~.nib

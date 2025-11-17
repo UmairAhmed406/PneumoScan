@@ -1,0 +1,76 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Python
+*.py text eol=lf
+*.pyi text eol=lf
+*.pyx text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Batch scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Documents
+*.md text eol=lf
+*.txt text eol=lf
+*.rst text eol=lf
+
+# Config files
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+.env* text eol=lf
+
+# Git
+.gitattributes text eol=lf
+.gitignore text eol=lf
+
+# Binary files
+*.pkl binary
+*.pickle binary
+*.npy binary
+*.npz binary
+*.h5 binary
+*.keras binary
+*.pb binary
+*.pth binary
+*.pt binary
+*.onnx binary
+
+# Images
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+*.ico binary
+*.svg text
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+*.tgz binary
+*.rar binary
+*.7z binary
+
+# Documents
+*.pdf binary
+*.doc binary
+*.docx binary
+*.ppt binary
+*.pptx binary
+*.xls binary
+*.xlsx binary
+
+# Large File Storage (if using Git LFS)
+*.keras filter=lfs diff=lfs merge=lfs -text
+*.h5 filter=lfs diff=lfs merge=lfs -text
+*.pth filter=lfs diff=lfs merge=lfs -text
+*.onnx filter=lfs diff=lfs merge=lfs -text

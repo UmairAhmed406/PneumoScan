@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(git -C \"D:\\My Projects\\PneumoScan\" status)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Initial commit - PneumoScan foundation\n\nRestructured academic project into professional open-source repository:\n\nProject Structure:\n- Reorganized files into clean directory structure\n- Created model/, backend/, notebooks/, research/, android/, docs/ folders\n- Moved all files to appropriate locations\n\nDocumentation:\n- Comprehensive README.md with project overview, installation, usage\n- LICENSE (MIT) with medical disclaimer\n- CONTRIBUTING.md with contribution guidelines\n- CODE_OF_CONDUCT.md (Contributor Covenant)\n- MEDICAL_DISCLAIMER.md with detailed safety warnings\n- DEPLOYMENT.md with deployment instructions\n\nBackend API:\n- Refactored Flask API (backend/app.py)\n- Removed hardcoded paths\n- Added environment variable configuration\n- Implemented proper error handling and logging\n- Added CORS support\n- Created health check and model info endpoints\n- Added confidence scores to predictions\n- Comprehensive API documentation in docstrings\n\nConfiguration:\n- Created requirements.txt with pinned dependencies\n- Added .env.example for environment configuration\n- Created .gitignore for Python/Node/Android\n- Added .gitattributes for Git LFS and line ending handling\n\nGitHub Setup:\n- Bug report issue template\n- Feature request issue template\n- Pull request template\n\nArchive:\n- Android app moved to android/PneumoScanApp (legacy)\n\nModel:\n- Models in model/ directory\n- Research papers in research/\n- Jupyter notebook in notebooks/\n\nNote: This is for educational and research purposes only.\nNOT for clinical use.\n\nEOF\n)\")",
+      "Bash(git config:*)",
+      "Bash(git commit:*)",
+      "Bash(gh:*)",
+      "Bash(git rm:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

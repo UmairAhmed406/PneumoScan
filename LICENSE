@@ -1,0 +1,48 @@
+MIT License
+
+Copyright (c) 2024 PneumoScan Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+MEDICAL DISCLAIMER:
+
+THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL AND RESEARCH PURPOSES ONLY.
+
+This software is NOT a medical device and is NOT intended for clinical use.
+It is NOT FDA approved and has NOT been clinically validated. The predictions
+made by this software should NEVER be used as the sole basis for medical
+diagnosis or treatment decisions.
+
+This software is NOT a substitute for professional medical advice, diagnosis,
+or treatment. Always seek the advice of qualified healthcare providers with
+any questions you may have regarding a medical condition.
+
+The developers, contributors, and copyright holders of this software assume
+NO LIABILITY and make NO WARRANTIES regarding the accuracy, reliability, or
+fitness for any particular purpose of this software.
+
+By using this software, you acknowledge and agree that:
+1. You will NOT use it for clinical diagnosis or medical decision-making
+2. You understand the limitations and experimental nature of this software
+3. You will consult qualified healthcare professionals for all medical matters
+4. The developers bear NO RESPONSIBILITY for any consequences of using this software
+
+USE AT YOUR OWN RISK.
