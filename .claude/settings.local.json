@@ -9,7 +9,16 @@
       "Bash(git config:*)",
       "Bash(git commit:*)",
       "Bash(gh:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(node --version:*)",
+      "Bash(npm --version)",
+      "Bash(python -m venv:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(npm install)"
     ],
     "deny": [],
     "ask": []

@@ -1,25 +1,22 @@
 """
-PneumoScan Backend API - FastAPI Version
+PneumoScan Backend API
 
-FastAPI application for pneumonia detection from chest X-ray images.
+Flask application for pneumonia detection from chest X-ray images.
 This is for educational and research purposes only - NOT for clinical use.
 """
 
 import os
 import logging
 from pathlib import Path
-from typing import Dict, Any
+from typing import Tuple, Dict, Any
 import tempfile
 
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-import tensorflow as tf
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 import numpy as np
 from dotenv import load_dotenv
-from pydantic import BaseModel
 
 # Load environment variables
 load_dotenv()
@@ -31,14 +28,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Initialize FastAPI app
-app = FastAPI(
-    title="PneumoScan API",
-    description="AI-powered pneumonia detection from chest X-rays",
-    version="2.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
-)
+# Initialize Flask app
+app = Flask(__name__)
 
 # Configuration
 class Config:
@@ -48,49 +39,26 @@ class Config:
         'MODEL_PATH',
         os.path.join(os.path.dirname(__file__), '..', 'model', 'final_model.keras')
     )
+    UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', tempfile.gettempdir())
     MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))  # 16MB
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
     TARGET_SIZE = (150, 150)
     PREDICTION_THRESHOLD = float(os.getenv('PREDICTION_THRESHOLD', 0.5))
-    PORT = int(os.getenv('PORT', 8000))
+    PORT = int(os.getenv('PORT', 5000))
     HOST = os.getenv('HOST', '0.0.0.0')
-    ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', '*').split(',')
+    DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
+app.config.from_object(Config)
 
 # Enable CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=Config.ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+CORS(app, resources={
+    r"/api/*": {
+        "origins": os.getenv('ALLOWED_ORIGINS', '*').split(',')
+    }
+})
 
 # Global model variable
 model = None
-
-
-# Pydantic models
-class PredictionResponse(BaseModel):
-    prediction: str
-    confidence: float
-    raw_score: float
-    disclaimer: str
-
-
-class ModelInfo(BaseModel):
-    model_type: str
-    framework: str
-    input_size: tuple
-    classes: list
-    accuracy: str
-    threshold: float
-
-
-class HealthResponse(BaseModel):
-    status: str
-    model_loaded: bool
-    model_path: str
 
 
 def load_ml_model():
@@ -128,7 +96,21 @@ def load_ml_model():
         raise
 
 
-def preprocess_image(image_path: str, target_size: tuple = (150, 150)) -> np.ndarray:
+def allowed_file(filename: str) -> bool:
+    """
+    Check if the file extension is allowed.
+
+    Args:
+        filename: Name of the file
+
+    Returns:
+        True if extension is allowed, False otherwise
+    """
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
+
+
+def preprocess_image(image_path: str, target_size: Tuple[int, int] = (150, 150)) -> np.ndarray:
     """
     Load and preprocess an image for model inference.
 
@@ -188,6 +170,7 @@ def predict_pneumonia(image_path: str) -> Dict[str, Any]:
         class_label = 'Pneumonia' if confidence > Config.PREDICTION_THRESHOLD else 'Normal'
 
         # Adjust confidence for display (closer to 1 means more confident)
+        # If Pneumonia: confidence as-is, if Normal: 1 - confidence
         display_confidence = confidence if class_label == 'Pneumonia' else 1 - confidence
 
         result = {
@@ -204,92 +187,104 @@ def predict_pneumonia(image_path: str) -> Dict[str, Any]:
         raise ValueError(f"Prediction failed: {str(e)}")
 
 
-# API Routes
+# ===== API ROUTES =====
 
-@app.get("/", tags=["Root"])
-async def root():
+@app.route('/', methods=['GET'])
+def index():
     """Root endpoint with API information."""
-    return {
-        "name": "PneumoScan API",
-        "version": "2.0.0",
-        "description": "AI-powered pneumonia detection from chest X-rays",
-        "disclaimer": "For educational and research purposes only. NOT for clinical use.",
-        "endpoints": {
-            "health": "/health",
-            "predict": "/api/predict (POST)",
-            "model_info": "/api/model/info",
-            "docs": "/docs",
-            "redoc": "/redoc"
+    return jsonify({
+        'name': 'PneumoScan API',
+        'version': '1.0.0',
+        'description': 'AI-powered pneumonia detection from chest X-rays',
+        'disclaimer': 'For educational and research purposes only. NOT for clinical use.',
+        'endpoints': {
+            'health': '/health',
+            'predict': '/api/predict (POST)',
+            'model_info': '/api/model/info'
         }
-    }
+    }), 200
 
 
-@app.get("/health", response_model=HealthResponse, tags=["Health"])
-async def health_check():
+@app.route('/health', methods=['GET'])
+def health_check():
     """Health check endpoint."""
     try:
         # Check if model is loaded
         if model is None:
             load_ml_model()
 
-        return HealthResponse(
-            status="healthy",
-            model_loaded=model is not None,
-            model_path=Config.MODEL_PATH
-        )
+        return jsonify({
+            'status': 'healthy',
+            'model_loaded': model is not None,
+            'model_path': Config.MODEL_PATH
+        }), 200
 
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        raise HTTPException(status_code=503, detail={"status": "unhealthy", "error": str(e)})
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e)
+        }), 503
 
 
-@app.get("/api/model/info", response_model=ModelInfo, tags=["Model"])
-async def model_info():
+@app.route('/api/model/info', methods=['GET'])
+def model_info():
     """Get information about the loaded model."""
     try:
         if model is None:
             load_ml_model()
 
-        return ModelInfo(
-            model_type="CNN (Convolutional Neural Network)",
-            framework="TensorFlow/Keras",
-            input_size=Config.TARGET_SIZE,
-            classes=["Normal", "Pneumonia"],
-            accuracy="89.67%",
-            threshold=Config.PREDICTION_THRESHOLD
-        )
+        return jsonify({
+            'model_type': 'CNN (Convolutional Neural Network)',
+            'framework': 'TensorFlow/Keras',
+            'input_size': Config.TARGET_SIZE,
+            'classes': ['Normal', 'Pneumonia'],
+            'accuracy': '89.67%',
+            'threshold': Config.PREDICTION_THRESHOLD
+        }), 200
 
     except Exception as e:
         logger.error(f"Error getting model info: {e}")
-        raise HTTPException(status_code=500, detail={"error": str(e)})
+        return jsonify({'error': str(e)}), 500
 
 
-@app.post("/api/predict", response_model=PredictionResponse, tags=["Prediction"])
-async def predict_endpoint(file: UploadFile = File(...)):
+@app.route('/api/predict', methods=['POST'])
+def predict_endpoint():
     """
     Predict pneumonia from uploaded chest X-ray image.
 
-    Args:
-        file: Uploaded image file (PNG, JPG, JPEG)
+    Expects:
+        - multipart/form-data with 'file' field containing the image
 
     Returns:
-        Prediction result with confidence score
+        - JSON with prediction result and confidence score
     """
     try:
-        # Validate file
-        if not file:
-            raise HTTPException(status_code=400, detail={"error": "No file provided"})
+        # Validate request
+        if 'file' not in request.files:
+            logger.warning("No file part in request")
+            return jsonify({
+                'error': 'No file provided',
+                'message': 'Please upload an image file'
+            }), 400
 
-        # Check file extension
-        file_ext = Path(file.filename).suffix.lower().replace('.', '')
-        if file_ext not in Config.ALLOWED_EXTENSIONS:
-            raise HTTPException(
-                status_code=400,
-                detail={
-                    "error": "Invalid file type",
-                    "message": f"Allowed types: {', '.join(Config.ALLOWED_EXTENSIONS)}"
-                }
-            )
+        file = request.files['file']
+
+        # Check if file is selected
+        if file.filename == '':
+            logger.warning("Empty filename")
+            return jsonify({
+                'error': 'No file selected',
+                'message': 'Please select a file to upload'
+            }), 400
+
+        # Validate file extension
+        if not allowed_file(file.filename):
+            logger.warning(f"Invalid file type: {file.filename}")
+            return jsonify({
+                'error': 'Invalid file type',
+                'message': f'Allowed types: {", ".join(Config.ALLOWED_EXTENSIONS)}'
+            }), 400
 
         # Ensure model is loaded
         if model is None:
@@ -297,10 +292,9 @@ async def predict_endpoint(file: UploadFile = File(...)):
             load_ml_model()
 
         # Create temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_ext}") as temp_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=Path(file.filename).suffix) as temp_file:
             temp_path = temp_file.name
-            content = await file.read()
-            temp_file.write(content)
+            file.save(temp_path)
             logger.info(f"File saved to temporary path: {temp_path}")
 
         try:
@@ -309,11 +303,11 @@ async def predict_endpoint(file: UploadFile = File(...)):
 
             # Add medical disclaimer
             result['disclaimer'] = (
-                "This prediction is for educational/research purposes only. "
-                "Always consult a qualified healthcare professional for medical diagnosis."
+                'This prediction is for educational/research purposes only. '
+                'Always consult a qualified healthcare professional for medical diagnosis.'
             )
 
-            return PredictionResponse(**result)
+            return jsonify(result), 200
 
         finally:
             # Clean up temporary file
@@ -321,23 +315,53 @@ async def predict_endpoint(file: UploadFile = File(...)):
                 os.remove(temp_path)
                 logger.info(f"Temporary file deleted: {temp_path}")
 
-    except HTTPException:
-        raise
     except ValueError as e:
         logger.error(f"Validation error: {e}")
-        raise HTTPException(status_code=400, detail={"error": "Processing error", "message": str(e)})
+        return jsonify({
+            'error': 'Processing error',
+            'message': str(e)
+        }), 400
+
     except Exception as e:
         logger.error(f"Unexpected error in prediction endpoint: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail={"error": "Internal server error", "message": "An unexpected error occurred"}
-        )
+        return jsonify({
+            'error': 'Internal server error',
+            'message': 'An unexpected error occurred. Please try again.'
+        }), 500
 
 
-# Startup event
-@app.on_event("startup")
-async def startup_event():
-    """Load model at startup."""
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    """Handle file size exceeding limit."""
+    return jsonify({
+        'error': 'File too large',
+        'message': f'Maximum file size is {Config.MAX_CONTENT_LENGTH / (1024*1024)}MB'
+    }), 413
+
+
+@app.errorhandler(404)
+def not_found(error):
+    """Handle 404 errors."""
+    return jsonify({
+        'error': 'Not found',
+        'message': 'The requested endpoint does not exist'
+    }), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    """Handle 500 errors."""
+    logger.error(f"Internal server error: {error}")
+    return jsonify({
+        'error': 'Internal server error',
+        'message': 'An unexpected error occurred'
+    }), 500
+
+
+# ===== MAIN =====
+
+if __name__ == '__main__':
+    # Load model at startup
     try:
         load_ml_model()
         logger.info("Model preloaded successfully")
@@ -345,17 +369,15 @@ async def startup_event():
         logger.error(f"Failed to preload model: {e}")
         logger.warning("Server starting without model - it will be loaded on first request")
 
+    # Create upload folder if it doesn't exist
+    os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
 
-# Main execution
-if __name__ == "__main__":
-    import uvicorn
-
+    # Start server
     logger.info(f"Starting PneumoScan API on {Config.HOST}:{Config.PORT}")
+    logger.info(f"Debug mode: {Config.DEBUG}")
 
-    uvicorn.run(
-        "app:app",
+    app.run(
         host=Config.HOST,
         port=Config.PORT,
-        reload=True,
-        log_level="info"
+        debug=Config.DEBUG
     )
