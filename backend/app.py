@@ -20,6 +20,7 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 import numpy as np
 from dotenv import load_dotenv
 from pydantic import BaseModel
+from model_downloader import ensure_model_exists
 
 # Load environment variables
 load_dotenv()
@@ -48,6 +49,7 @@ class Config:
         'MODEL_PATH',
         os.path.join(os.path.dirname(__file__), '..', 'model', 'final_model.keras')
     )
+    MODEL_URL = os.getenv('MODEL_URL', None)  # URL to download model from if not present
     MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))  # 16MB
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
     TARGET_SIZE = (150, 150)
@@ -96,12 +98,13 @@ class HealthResponse(BaseModel):
 def load_ml_model():
     """
     Load the trained Keras model.
+    If model doesn't exist locally but MODEL_URL is provided, downloads it first.
 
     Returns:
         Loaded Keras model
 
     Raises:
-        FileNotFoundError: If model file doesn't exist
+        FileNotFoundError: If model file doesn't exist and can't be downloaded
         Exception: If model loading fails
     """
     global model
@@ -112,10 +115,14 @@ def load_ml_model():
 
     model_path = Config.MODEL_PATH
 
-    if not os.path.exists(model_path):
+    # Ensure model exists (download if necessary)
+    model_available = ensure_model_exists(model_path, Config.MODEL_URL)
+
+    if not model_available:
         raise FileNotFoundError(
             f"Model file not found at {model_path}. "
-            f"Please ensure the model is in the correct location or set MODEL_PATH environment variable."
+            f"Please ensure the model is in the correct location, "
+            f"set MODEL_PATH environment variable, or provide MODEL_URL for automatic download."
         )
 
     try:
