@@ -1,3 +1,5 @@
-# Map all contributors to single identity
-UmairAhmed406 <ahmedomair406@gmail.com> Claude <noreply@anthropic.com>
-UmairAhmed406 <ahmedomair406@gmail.com> Umair Ahmad <ahmedomair406@gmail.com>
+# Consolidate all commits under primary author
+Umair Ahmad <ahmedomair406@gmail.com>
+Umair Ahmad <ahmedomair406@gmail.com> UmairAhmed406 <ahmedomair406@gmail.com>
+Umair Ahmad <ahmedomair406@gmail.com> Claude <noreply@anthropic.com>
+Umair Ahmad <ahmedomair406@gmail.com> claude <noreply@anthropic.com>
