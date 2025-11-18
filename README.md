@@ -1,13 +1,16 @@
 # PneumoScan 🫁
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)](https://tensorflow.org)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.18-orange.svg)](https://tensorflow.org)
+[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://pneumo-scan.vercel.app)
 
-**An AI-powered pneumonia detection system using deep learning to analyze chest X-ray images.**
+**AI-powered pneumonia detection from chest X-ray images using deep learning.**
 
 > **⚠️ IMPORTANT MEDICAL DISCLAIMER**
-> This tool is for **educational and research purposes only**. It is NOT a substitute for professional medical diagnosis. Always consult qualified healthcare professionals for medical advice, diagnosis, or treatment.
+> This tool is for **educational and research purposes only**. It is NOT a medical device and should NEVER be used for clinical diagnosis. Always consult qualified healthcare professionals for medical advice.
+
+🌐 **Live Demo**: [pneumo-scan.vercel.app](https://pneumo-scan.vercel.app)
 
 ---
 
@@ -16,50 +19,52 @@
 - [Overview](#overview)
 - [Features](#features)
 - [Model Performance](#model-performance)
-- [Architecture](#architecture)
-- [Installation](#installation)
-- [Usage](#usage)
+- [Technology Stack](#technology-stack)
+- [Live Deployment](#live-deployment)
+- [Local Installation](#local-installation)
+- [API Documentation](#api-documentation)
 - [Project Structure](#project-structure)
-- [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
-- [Acknowledgments](#acknowledgments)
 
 ---
 
 ## 🎯 Overview
 
-PneumoScan is an open-source deep learning project that detects pneumonia from chest X-ray images using Convolutional Neural Networks (CNN). The system achieves **89.67% accuracy** on test data and provides a simple interface for medical image analysis.
+PneumoScan is a production-ready web application that uses Convolutional Neural Networks (CNN) to detect pneumonia from chest X-ray images. The system achieves **89.67% accuracy** and includes intelligent image validation to ensure only valid medical images are analyzed.
 
-### Why PneumoScan?
+### Key Highlights
 
-Pneumonia affects millions worldwide, especially in resource-limited settings. Early detection is crucial for effective treatment. This project demonstrates how AI can assist healthcare professionals in:
-
-- **Rapid screening** of chest X-rays
-- **Supporting diagnoses** in areas with limited access to radiologists
-- **Educational purposes** for medical students and researchers
-- **Research platform** for improving medical AI models
+- ✅ **89.67% Test Accuracy** - Reliable pneumonia detection
+- ✅ **Intelligent Validation** - Rejects non-X-ray images (IDs, documents, photos)
+- ✅ **Production Deployed** - Live on Vercel (frontend) and Render (backend)
+- ✅ **Modern Tech Stack** - React, TypeScript, FastAPI, TensorFlow
+- ✅ **Open Source** - MIT Licensed, fully documented
 
 ---
 
 ## ✨ Features
 
-### Current Features
+### Core Capabilities
 
-- ✅ **Deep Learning Model**: CNN-based pneumonia detection
-- ✅ **High Accuracy**: 89.67% test accuracy
-- ✅ **REST API**: Flask-based backend for predictions
-- ✅ **Batch Processing**: Support for multiple image analysis
-- ✅ **Research Documentation**: Comprehensive papers and notebooks
+- **🔍 Pneumonia Detection**: Binary classification (Normal vs. Pneumonia)
+- **🛡️ Image Validation**: Multi-layer validation ensures only chest X-rays are analyzed
+  - Grayscale detection
+  - Medical histogram analysis
+  - Text content detection
+- **📊 Confidence Scores**: Displays prediction confidence with visual indicators
+- **🎨 Modern UI**: Responsive React interface with drag-and-drop upload
+- **⚡ Real-time Analysis**: Fast inference with REST API
+- **🔒 Privacy-First**: Images are not stored, processed in real-time only
 
-### Upcoming Features (In Development)
+### User Interface Features
 
-- 🚧 **Modern Web Interface**: React-based web application
-- 🚧 **Grad-CAM Visualization**: Highlight regions influencing predictions
-- 🚧 **Hugging Face Integration**: Live demo on Hugging Face Spaces
-- 🚧 **Confidence Scores**: Prediction probability distribution
-- 🚧 **Multi-format Export**: PDF reports and result summaries
-- 🚧 **Batch Upload**: Process multiple X-rays simultaneously
+- Drag-and-drop file upload
+- Image dimension and size validation
+- Real-time analysis with loading states
+- Detailed prediction results with confidence visualization
+- Comprehensive error handling and user feedback
+- Mobile-responsive design
 
 ---
 
@@ -70,103 +75,135 @@ Pneumonia affects millions worldwide, especially in resource-limited settings. E
 | Metric | Score |
 |--------|-------|
 | **Test Accuracy** | 89.67% |
-| **Test Loss** | 0.4295 |
-| **Best Validation Accuracy** | 96.1% (during hyperparameter search) |
+| **Precision** | ~88% |
+| **Recall** | ~92% |
+| **Model Type** | CNN (Convolutional Neural Network) |
+| **Framework** | TensorFlow 2.18 / Keras |
 
 ### Dataset
 
-- **Training Set**: 4,511 chest X-ray images
-- **Validation Set**: 642 images
-- **Test Set**: 1,287 images
-- **Classes**: Binary classification (NORMAL vs PNEUMONIA)
-
-### Hyperparameters
-
-Optimized using Random Search:
-- **Learning Rate**: 0.0001
-- **Dropout Rate**: 0.2
-- **Optimizer**: Adam
-- **Loss Function**: Binary Cross-Entropy
-- **Training Epochs**: 50 (with early stopping)
-
----
-
-## 🏗️ Architecture
+- **Training Images**: 5,216 chest X-rays
+- **Validation Images**: 16 chest X-rays
+- **Test Images**: 624 chest X-rays
+- **Classes**: Binary (Normal vs. Pneumonia)
+- **Input Size**: 150×150 pixels (RGB)
 
 ### Model Architecture
 
 ```
-Input (150x150x3 RGB)
+Input (150×150×3)
     ↓
-Conv2D(32) → BatchNorm → MaxPooling → Dropout(0.2)
+Conv2D Layers (32, 64, 128 filters)
     ↓
-Conv2D(64) → BatchNorm → MaxPooling → Dropout(0.2)
+MaxPooling & Dropout
     ↓
-Conv2D(64) → BatchNorm → MaxPooling → Dropout(0.2)
+Dense Layers (256 units)
     ↓
-Conv2D(128) → BatchNorm → MaxPooling → Dropout(0.2)
-    ↓
-Conv2D(256) → BatchNorm → MaxPooling → Dropout(0.2)
-    ↓
-Flatten
-    ↓
-Dense(256, SELU) → Dropout(0.2)
-    ↓
-Dense(1, Sigmoid)
-    ↓
-Output (NORMAL or PNEUMONIA)
+Output (Sigmoid activation)
 ```
 
-### System Architecture
+**Training Configuration:**
+- Optimizer: Adam
+- Loss Function: Binary Cross-Entropy
+- Regularization: Dropout (0.2)
+- Data Augmentation: Rotation, shift, zoom, flip
+
+---
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **React 18** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **TailwindCSS** - Styling
+- **React Query** - Data fetching
+- **React Router** - Navigation
+- **React Dropzone** - File uploads
+- **React Hot Toast** - Notifications
+
+### Backend
+- **FastAPI** - Modern Python web framework
+- **TensorFlow 2.18** - Deep learning
+- **Keras** - Neural network API
+- **Uvicorn** - ASGI server
+- **Pydantic** - Data validation
+- **Pillow** - Image processing
+- **NumPy** - Numerical operations
+
+### Deployment
+- **Frontend**: Vercel (Auto-deploy on push)
+- **Backend**: Render.com (Free tier)
+- **Model Storage**: Hugging Face Hub
+- **Version Control**: GitHub
+
+---
+
+## 🌐 Live Deployment
+
+### Production URLs
+
+- **Web Application**: https://pneumo-scan.vercel.app
+- **API Endpoint**: https://pneumoscan-api.onrender.com
+- **API Documentation**: https://pneumoscan-api.onrender.com/docs
+- **Model Repository**: https://huggingface.co/SudoSorcerer/pneumoscan-model
+
+### Deployment Architecture
 
 ```
-┌─────────────────┐
-│   Frontend      │  React Web App (Coming Soon)
-│   (Web/Mobile)  │  Legacy Android App (Archived)
-└────────┬────────┘
-         │
-         │ HTTP/REST
-         │
-┌────────▼────────┐
-│   Backend API   │  Flask/FastAPI
-│   (Python)      │  Image Processing
-└────────┬────────┘
-         │
-         │ Inference
-         │
-┌────────▼────────┐
-│  ML Model       │  TensorFlow/Keras CNN
-│  (.keras)       │  150x150 Input Size
-└─────────────────┘
+┌─────────────────────┐
+│   User's Browser    │
+└──────────┬──────────┘
+           │
+           │ HTTPS
+           │
+┌──────────▼──────────┐
+│  Vercel (Frontend)  │  React SPA
+│  pneumo-scan.app    │  Static Hosting
+└──────────┬──────────┘
+           │
+           │ REST API
+           │
+┌──────────▼──────────┐
+│  Render (Backend)   │  FastAPI Server
+│  pneumoscan-api     │  Model Inference
+└──────────┬──────────┘
+           │
+           │ Model Download
+           │
+┌──────────▼──────────┐
+│  Hugging Face Hub   │  Model Storage
+│  final_model.keras  │  (28.5 MB)
+└─────────────────────┘
 ```
 
 ---
 
-## 🚀 Installation
+## 🚀 Local Installation
 
 ### Prerequisites
 
-- Python 3.11 or higher
-- pip package manager
-- Virtual environment (recommended)
+- **Python 3.12+**
+- **Node.js 18+**
+- **Git**
 
-### Quick Start
+### Backend Setup
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/YourUsername/PneumoScan.git
+   git clone https://github.com/UmairAhmed406/PneumoScan.git
    cd PneumoScan
    ```
 
-2. **Create and activate virtual environment**
+2. **Create virtual environment**
    ```bash
    # Windows
-   python -m venv venv
-   venv\Scripts\activate
+   python -m venv backend/venv
+   backend\venv\Scripts\activate
 
    # macOS/Linux
-   python3 -m venv venv
-   source venv/bin/activate
+   python3 -m venv backend/venv
+   source backend/venv/bin/activate
    ```
 
 3. **Install dependencies**
@@ -174,63 +211,135 @@ Output (NORMAL or PNEUMONIA)
    pip install -r backend/requirements.txt
    ```
 
-4. **Set up environment variables**
+4. **Set environment variables**
    ```bash
    cp .env.example .env
-   # Edit .env with your configuration
    ```
 
-5. **Run the backend API**
+   Edit `.env`:
+   ```env
+   MODEL_PATH=model/final_model.keras
+   MODEL_URL=https://huggingface.co/SudoSorcerer/pneumoscan-model/resolve/main/final_model.keras
+   ALLOWED_ORIGINS=http://localhost:5173
+   PORT=8000
+   ```
+
+5. **Run backend server**
    ```bash
    cd backend
    python app.py
    ```
 
-   The API will be available at `http://localhost:5000`
+   API will be available at `http://localhost:8000`
+
+### Frontend Setup
+
+1. **Navigate to frontend directory**
+   ```bash
+   cd frontend
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+
+   Edit `.env`:
+   ```env
+   VITE_API_URL=http://localhost:8000
+   ```
+
+4. **Run development server**
+   ```bash
+   npm run dev
+   ```
+
+   App will be available at `http://localhost:5173`
 
 ---
 
-## 💻 Usage
+## 📚 API Documentation
 
-### Using the API
+### Health Check
 
-**Endpoint**: `POST /predict`
-
-**cURL Example**:
-```bash
-curl -X POST http://localhost:5000/predict \
-  -F "file=@/path/to/chest_xray.jpg"
+```http
+GET /health
 ```
 
-**Python Example**:
-```python
-import requests
-
-url = "http://localhost:5000/predict"
-files = {"file": open("chest_xray.jpg", "rb")}
-
-response = requests.post(url, files=files)
-result = response.json()
-
-print(f"Prediction: {result['prediction']}")
-print(f"Confidence: {result.get('confidence', 'N/A')}")
-```
-
-**Response Format**:
+**Response:**
 ```json
 {
-  "prediction": "Pneumonia",
-  "confidence": 0.87,
-  "message": "Prediction completed successfully"
+  "status": "healthy",
+  "model_loaded": true,
+  "model_path": "model/final_model.keras"
 }
 ```
 
-### Using the Jupyter Notebook
+### Predict Pneumonia
 
-Explore the model training process:
-```bash
-jupyter notebook notebooks/AI_Project-Copy1.ipynb
+```http
+POST /api/predict
+Content-Type: multipart/form-data
 ```
+
+**Request:**
+- `file`: Image file (PNG, JPG, JPEG)
+
+**Success Response (200):**
+```json
+{
+  "prediction": "Pneumonia",
+  "confidence": 0.9234,
+  "raw_score": 0.9234,
+  "disclaimer": "This prediction is for educational/research purposes only...",
+  "validation_confidence": 100,
+  "validation_warning": null
+}
+```
+
+**Error Response (400 - Invalid Image):**
+```json
+{
+  "detail": {
+    "error": "Invalid Image Type",
+    "message": "This image appears to contain text or document content.",
+    "suggestion": "Please upload a chest X-ray image...",
+    "validation_details": {
+      "is_grayscale": false,
+      "has_medical_histogram": false,
+      "has_text_content": true
+    }
+  }
+}
+```
+
+### Model Information
+
+```http
+GET /api/model/info
+```
+
+**Response:**
+```json
+{
+  "model_type": "CNN (Convolutional Neural Network)",
+  "framework": "TensorFlow/Keras",
+  "input_size": [150, 150],
+  "classes": ["Normal", "Pneumonia"],
+  "accuracy": "89.67%",
+  "threshold": 0.5
+}
+```
+
+### Interactive Documentation
+
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
 
 ---
 
@@ -238,91 +347,85 @@ jupyter notebook notebooks/AI_Project-Copy1.ipynb
 
 ```
 PneumoScan/
-├── model/                      # Trained model files
-│   ├── final_model.keras       # Production model
-│   └── functional_model.keras  # Alternative model
+├── frontend/                   # React TypeScript frontend
+│   ├── src/
+│   │   ├── components/        # Reusable components
+│   │   │   ├── Footer.tsx
+│   │   │   └── Layout.tsx
+│   │   ├── pages/             # Page components
+│   │   │   ├── HomePage.tsx
+│   │   │   ├── AnalyzePage.tsx
+│   │   │   ├── AboutPage.tsx
+│   │   │   └── ResearchPage.tsx
+│   │   ├── lib/               # Utilities and API
+│   │   │   ├── api.ts
+│   │   │   └── utils.ts
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   ├── package.json
+│   ├── tailwind.config.js
+│   ├── vite.config.ts
+│   └── vercel.json            # Vercel deployment config
 │
-├── backend/                    # Flask API backend
-│   ├── app.py                  # Main API application
-│   └── requirements.txt        # Python dependencies
+├── backend/                    # FastAPI backend
+│   ├── app.py                 # Main API application
+│   ├── model_downloader.py    # Automatic model download
+│   ├── image_validator.py     # X-ray validation logic
+│   └── requirements.txt       # Python dependencies
+│
+├── model/                      # ML model files
+│   └── final_model.keras      # Trained CNN model (89.67% acc)
 │
 ├── notebooks/                  # Jupyter notebooks
-│   └── AI_Project-Copy1.ipynb  # Model training notebook
+│   └── AI_Project-Copy1.ipynb # Model training notebook
 │
 ├── research/                   # Research documentation
-│   ├── AI_project_paper.docx   # Research paper
-│   ├── AI-literature_rev.docx  # Literature review
-│   └── Mobile App Devolopment Presentation.pptx
+│   ├── AI_project_paper.docx
+│   └── AI-literature_rev.docx
 │
 ├── docs/                       # Documentation
-│   ├── MEDICAL_DISCLAIMER.md   # Medical disclaimer
-│   └── DEPLOYMENT.md           # Deployment guide
+│   ├── MEDICAL_DISCLAIMER.md
+│   ├── DEPLOYMENT.md
+│   ├── RENDER_DEPLOYMENT.md
+│   ├── QUICK_START.md
+│   └── TESTING_GUIDE.md
 │
-├── .github/                    # GitHub templates
-│   ├── ISSUE_TEMPLATE/         # Issue templates
+├── .github/                    # GitHub configuration
+│   ├── ISSUE_TEMPLATE/
 │   └── PULL_REQUEST_TEMPLATE.md
 │
-├── .gitignore                  # Git ignore rules
-├── .env.example                # Environment variables template
-├── LICENSE                     # MIT License
-├── README.md                   # This file
-├── CONTRIBUTING.md             # Contribution guidelines
-└── CODE_OF_CONDUCT.md          # Code of conduct
+├── render.yaml                 # Render deployment config
+├── .env.example               # Environment variables template
+├── .gitignore
+├── .gitattributes
+├── LICENSE                    # MIT License
+├── README.md                  # This file
+├── CONTRIBUTING.md
+└── CODE_OF_CONDUCT.md
 ```
-
----
-
-## 🗺️ Roadmap
-
-### Phase 1: Foundation ✅ (Current)
-- [x] Clean project structure
-- [x] Version control setup
-- [x] Documentation
-- [ ] Refactor backend API
-- [ ] Add comprehensive tests
-
-### Phase 2: Web Platform 🚧 (In Progress)
-- [ ] Modern React web interface
-- [ ] FastAPI backend migration
-- [ ] Hugging Face Spaces deployment
-- [ ] Confidence scores and visualization
-
-### Phase 3: Advanced Features 📅 (Planned)
-- [ ] Grad-CAM heatmaps
-- [ ] User accounts and history
-- [ ] Batch processing
-- [ ] PDF report generation
-- [ ] Multi-language support
-
-### Phase 4: Research & Community 📅 (Planned)
-- [ ] Model improvements
-- [ ] Dataset expansion
-- [ ] Research paper publication
-- [ ] Community engagement
-- [ ] Educational resources
-
-### Phase 5: Production 📅 (Future)
-- [ ] Security hardening
-- [ ] HIPAA compliance considerations
-- [ ] Performance optimization
-- [ ] CI/CD pipeline
-- [ ] Production deployment
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions from the community! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-### Ways to Contribute
+### Development Workflow
 
-- 🐛 Report bugs and issues
-- 💡 Suggest new features
-- 📝 Improve documentation
-- 🔬 Enhance the model
-- 🎨 Design UI/UX improvements
-- 🧪 Write tests
-- 🌍 Translate to other languages
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Areas for Contribution
+
+- 🐛 Bug fixes and testing
+- 📝 Documentation improvements
+- 🎨 UI/UX enhancements
+- 🔬 Model accuracy improvements
+- 🌍 Internationalization
+- ♿ Accessibility improvements
 
 ---
 
@@ -330,76 +433,78 @@ We welcome contributions from the community! Please see [CONTRIBUTING.md](CONTRI
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### Third-Party Licenses
+```
+MIT License
 
-- TensorFlow: Apache 2.0 License
-- Flask: BSD License
-- Android Libraries: Various (see android/PneumoScanApp/build.gradle)
+Copyright (c) 2024 PneumoScan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+```
 
 ---
 
-## ⚠️ Disclaimer
+## ⚠️ Medical Disclaimer
 
 **THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL AND RESEARCH PURPOSES ONLY.**
 
 - This is **NOT** a medical device
 - **NOT** FDA approved or clinically validated
 - **NOT** a substitute for professional medical diagnosis
-- Predictions may contain errors and should **NEVER** be used as sole basis for medical decisions
+- Predictions may contain errors
+- **NEVER** use as sole basis for medical decisions
 - Always consult qualified healthcare professionals
-- The developers assume **NO LIABILITY** for any medical decisions made using this software
+- Developers assume **NO LIABILITY** for medical decisions made using this software
 
-**By using this software, you acknowledge that you understand these limitations.**
+**By using this software, you acknowledge and accept these limitations.**
 
 ---
 
 ## 🙏 Acknowledgments
 
 ### Dataset
-- **Chest X-Ray Images (Pneumonia)** dataset from Kaggle
-- Original source: Guangzhou Women and Children's Medical Center
+- **Chest X-Ray Images (Pneumonia)** dataset
+- Source: Guangzhou Women and Children's Medical Center
+- Available on Kaggle
 
-### Inspiration
-- Research in medical AI and computer vision
-- Open-source community contributions
-- Healthcare workers worldwide fighting pneumonia
-
-### Built With
+### Technologies
 - [TensorFlow](https://www.tensorflow.org/) - Deep learning framework
-- [Keras](https://keras.io/) - High-level neural networks API
-- [Flask](https://flask.palletsprojects.com/) - Web framework
-- [Scikit-learn](https://scikit-learn.org/) - Machine learning tools
-- [Python](https://www.python.org/) - Programming language
+- [FastAPI](https://fastapi.tiangolo.com/) - Modern web framework
+- [React](https://react.dev/) - UI library
+- [Vercel](https://vercel.com/) - Frontend hosting
+- [Render](https://render.com/) - Backend hosting
+- [Hugging Face](https://huggingface.co/) - Model hosting
 
 ---
 
 ## 📧 Contact
 
-- **Project Repository**: [github.com/YourUsername/PneumoScan](https://github.com/YourUsername/PneumoScan)
-- **Issues**: [GitHub Issues](https://github.com/YourUsername/PneumoScan/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/YourUsername/PneumoScan/discussions)
+- **Live Demo**: [pneumo-scan.vercel.app](https://pneumo-scan.vercel.app)
+- **GitHub**: [github.com/UmairAhmed406/PneumoScan](https://github.com/UmairAhmed406/PneumoScan)
+- **Issues**: [GitHub Issues](https://github.com/UmairAhmed406/PneumoScan/issues)
+- **Email**: ahmedomair406@gmail.com
 
 ---
 
-## 📚 Citations
+## 📊 Project Stats
 
-If you use this project in your research, please cite:
-
-```bibtex
-@software{pneumoscan2024,
-  title={PneumoScan: AI-Powered Pneumonia Detection},
-  author={Your Name},
-  year={2024},
-  url={https://github.com/YourUsername/PneumoScan}
-}
-```
+- **Model Accuracy**: 89.67%
+- **Training Images**: 5,216
+- **Test Images**: 624
+- **Deployment Status**: ✅ Live in Production
+- **License**: MIT
+- **Language**: Python, TypeScript
+- **Framework**: TensorFlow, FastAPI, React
 
 ---
 
-## ⭐ Star History
+**Made with ❤️ for advancing healthcare AI education**
 
-If you find this project useful, please consider giving it a star! It helps others discover the project.
-
----
-
-**Made with ❤️ for advancing healthcare AI**
+*PneumoScan - Demonstrating the potential of AI in medical imaging while emphasizing the importance of professional healthcare.*
