@@ -21,6 +21,7 @@ import numpy as np
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from model_downloader import ensure_model_exists
+from image_validator import ChestXRayValidator
 
 # Load environment variables
 load_dotenv()
@@ -78,6 +79,8 @@ class PredictionResponse(BaseModel):
     confidence: float
     raw_score: float
     disclaimer: str
+    validation_confidence: int = 100
+    validation_warning: str = None
 
 
 class ModelInfo(BaseModel):
@@ -311,6 +314,22 @@ async def predict_endpoint(file: UploadFile = File(...)):
             logger.info(f"File saved to temporary path: {temp_path}")
 
         try:
+            # Validate if image is a chest X-ray
+            validation_result = ChestXRayValidator.validate_chest_xray(temp_path)
+
+            if not validation_result['is_likely_xray']:
+                # Image doesn't appear to be a chest X-ray
+                logger.warning(f"Invalid image type detected: {validation_result['message']}")
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "error": "Invalid Image Type",
+                        "message": validation_result['message'],
+                        "suggestion": "Please upload a chest X-ray image. The uploaded image appears to be a document, photo, or other non-medical image.",
+                        "validation_details": validation_result['checks']
+                    }
+                )
+
             # Make prediction
             result = predict_pneumonia(temp_path)
 
@@ -319,6 +338,13 @@ async def predict_endpoint(file: UploadFile = File(...)):
                 "This prediction is for educational/research purposes only. "
                 "Always consult a qualified healthcare professional for medical diagnosis."
             )
+
+            # Add validation confidence
+            result['validation_confidence'] = validation_result['confidence']
+
+            # Add warning if validation confidence is low
+            if validation_result['confidence'] < 80:
+                result['validation_warning'] = validation_result['message']
 
             return PredictionResponse(**result)
 

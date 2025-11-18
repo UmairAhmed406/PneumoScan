@@ -18,10 +18,28 @@ const AnalyzePage = () => {
       toast.success('Analysis complete!')
     },
     onError: (error: any) => {
-      const errorMessage = error.response?.data?.detail?.message ||
-                          error.response?.data?.message ||
-                          'Analysis failed. Please ensure you uploaded a valid chest X-ray image.'
-      toast.error(errorMessage)
+      const detail = error.response?.data?.detail
+
+      // Handle validation errors with custom formatting
+      if (detail?.error === 'Invalid Image Type') {
+        toast.error(
+          <div className="space-y-2">
+            <p className="font-semibold">{detail.error}</p>
+            <p className="text-sm">{detail.message}</p>
+            {detail.suggestion && (
+              <p className="text-xs italic">{detail.suggestion}</p>
+            )}
+          </div>,
+          { duration: 6000 }
+        )
+      } else {
+        // Generic error message
+        const errorMessage = detail?.message ||
+                            error.response?.data?.message ||
+                            'Analysis failed. Please ensure you uploaded a valid chest X-ray image.'
+        toast.error(errorMessage)
+      }
+
       setResult(null)
     },
   })
@@ -239,6 +257,19 @@ const AnalyzePage = () => {
               <div>
                 <h3 className="text-lg font-semibold mb-4">Prediction Details</h3>
                 <div className="space-y-4">
+                  {/* Validation Warning */}
+                  {result.validation_warning && (
+                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <p className="text-xs font-semibold text-yellow-800 mb-1">Validation Notice</p>
+                      <p className="text-xs text-yellow-700">{result.validation_warning}</p>
+                      {result.validation_confidence && (
+                        <p className="text-xs text-yellow-600 mt-2">
+                          Validation Confidence: {result.validation_confidence}%
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   {/* Prediction */}
                   <div className="p-6 border rounded-lg bg-card shadow-sm">
                     <div className="flex items-center justify-between mb-2">

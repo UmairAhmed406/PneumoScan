@@ -14,6 +14,8 @@ export interface PredictionResponse {
   confidence: number
   raw_score: number
   disclaimer: string
+  validation_confidence?: number
+  validation_warning?: string
 }
 
 export interface ModelInfo {
